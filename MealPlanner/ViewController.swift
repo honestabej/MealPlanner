@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  PlannerViewController.swift
 //  MealPlanner
 //
 //  Created by Abe Johnson on 2/7/25.
@@ -11,9 +11,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        self.title = "Planner"
     }
-
-
 }
 
