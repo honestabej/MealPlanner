@@ -1,11 +1,12 @@
 import UIKit
 
-class MainTabBarController: UITabBarController {
+class MainTabBarController: UITabBarController, UITabBarControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViewControllers()
         customizeTabBar()
+        self.delegate = self
     }
     
     private func customizeTabBar() {
@@ -38,8 +39,8 @@ class MainTabBarController: UITabBarController {
         let myPlansVC = MyPlansViewController()
         myPlansVC.tabBarItem = UITabBarItem(title: "My Plans", image: UIImage(systemName: "fork.knife")?.withRenderingMode(.alwaysTemplate), tag: 1)
         
-        let myRecipesVC = MyRecipesViewController()
-        myRecipesVC.tabBarItem = UITabBarItem(title: "My Recipes", image: UIImage(systemName: "book")?.withRenderingMode(.alwaysTemplate), tag: 2)
+        let myRecipesVC = RecipesViewController()
+        myRecipesVC.tabBarItem = UITabBarItem(title: "Recipes", image: UIImage(systemName: "book")?.withRenderingMode(.alwaysTemplate), tag: 2)
         
         let shoppingVC = ShoppingViewController()
         shoppingVC.tabBarItem = UITabBarItem(title: "Shopping", image: UIImage(systemName: "cart")?.withRenderingMode(.alwaysTemplate), tag: 3)
@@ -48,5 +49,23 @@ class MainTabBarController: UITabBarController {
         profileVC.tabBarItem = UITabBarItem(title: "Profile", image: UIImage(systemName: "person")?.withRenderingMode(.alwaysTemplate), tag: 4)
         
         viewControllers = [plannerVC, myPlansVC, myRecipesVC, shoppingVC, profileVC]
+    }
+
+    // Implement delegate method to handle tab switching without animation
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        guard let fromView = selectedViewController?.view,
+              let toView = viewController.view else {
+            return false
+        }
+        
+        if fromView != toView {
+            UIView.transition(from: fromView,
+                            to: toView,
+                            duration: 0,
+                            options: [.transitionCrossDissolve],
+                            completion: nil)
+        }
+        
+        return true
     }
 } 

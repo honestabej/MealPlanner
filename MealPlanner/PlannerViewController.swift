@@ -18,14 +18,6 @@ private enum FamilyViewState {
     case me
 }
 
-// A Struct to hold information about a scheduled meal
-struct ScheduledMeal {
-    let name: String                            
-    let schedule: [String: [String]]                        
-    var isChecked: Bool = false                 
-    var dateRange: String
-}
-
 class PlannerViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     // #region *** CREATE UIViews ***
 
@@ -170,8 +162,8 @@ class PlannerViewController: UIViewController, UITableViewDataSource, UITableVie
     private var familyViewState: FamilyViewState = .family    
 
     // Arrays to hold ScheduledMeals
-    private var mealPlanData: [ScheduledMeal] = []
-    private var mealPlanDataForCurrentWeek: [ScheduledMeal] = []
+    private var mealPlanData: [ScheduledMealStruct] = []
+    private var mealPlanDataForCurrentWeek: [ScheduledMealStruct] = []
     // #endregion *** END Class Variables ***
 
     // #region *** View Setup Functions ***
@@ -612,9 +604,8 @@ class PlannerViewController: UIViewController, UITableViewDataSource, UITableVie
                 isToday = true
             }
 
-            let dayView = createScheduleDay(day: weekDaysOrder[i], weekDayNum: i, isToday: isToday)
+            let dayView = createDayView(day: weekDaysOrder[i], weekDayNum: i, isToday: isToday)
             dayView.translatesAutoresizingMaskIntoConstraints = false
-            dayView.backgroundColor = .blue
             contentView.addSubview(dayView)
 
             // Add extra constraint to the last day to the bottom ofthe content view
@@ -623,6 +614,7 @@ class PlannerViewController: UIViewController, UITableViewDataSource, UITableVie
                     dayView.topAnchor.constraint(equalTo: tempView.bottomAnchor, constant: 10),
                     dayView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
                     dayView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+                    dayView.heightAnchor.constraint(greaterThanOrEqualToConstant: 80)
                 ])
                 tempView = dayView
             } else {
@@ -630,8 +622,9 @@ class PlannerViewController: UIViewController, UITableViewDataSource, UITableVie
                     dayView.topAnchor.constraint(equalTo: tempView.bottomAnchor, constant: 10),
                     dayView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
                     dayView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+                    dayView.heightAnchor.constraint(greaterThanOrEqualToConstant: 80),
 
-                    // Constrain this lasy day to the bottom of the contentView to define its height, along with some extra scroll space for the meal button,
+                    // Constrain this last day to the bottom of the contentView to define its height, along with some extra scroll space for the meal button,
                     // then constraint the bottom of the contentView and scrollView together so it defines the scrollable area height
                     dayView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -90),
                     contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
@@ -891,16 +884,16 @@ class PlannerViewController: UIViewController, UITableViewDataSource, UITableVie
         
         // Update the week label text based on the difference
         switch weeksBetween {
-        case 0:
-            weekLabel.text = "This Week"
-        case 1:
-            weekLabel.text = "Next Week"
-        case -1:
-            weekLabel.text = "Last Week"
-        case ..<0:
-            weekLabel.text = "\(abs(weeksBetween)) Weeks Ago"
-        default:
-            weekLabel.text = "In \(weeksBetween) Weeks"
+            case 0:
+                weekLabel.text = "This Week"
+            case 1:
+                weekLabel.text = "Next Week"
+            case -1:
+                weekLabel.text = "Last Week"
+            case ..<0:
+                weekLabel.text = "\(abs(weeksBetween)) Weeks Ago"
+            default:
+                weekLabel.text = "In \(weeksBetween) Weeks"
         }
     }
 
@@ -908,18 +901,18 @@ class PlannerViewController: UIViewController, UITableViewDataSource, UITableVie
     private func populateMealPlanListForDates() {        
         // Handle set meal plan button action
         mealPlanData = [
-            ScheduledMeal(name: "Spaghetti Bolognese", schedule: ["Mon": ["Lunch", "Dinner"], "Tue": ["Breakfast"], "Fri": ["Lunch"]], dateRange: dateLabel.text!),
-            ScheduledMeal(name: "Chicken Caesar Salad", schedule: ["Wed": ["Lunch"], "Sun": ["Dinner"]], dateRange: dateLabel.text!),
-            ScheduledMeal(name: "Crockpot Chicken", schedule: ["Unscheduled": []], dateRange: dateLabel.text!),
-            ScheduledMeal(name: "Vegetable Stir Fry", schedule: ["Thu": ["Breakfast"], "Sat": ["Lunch"]], dateRange: dateLabel.text!),
-            ScheduledMeal(name: "Beef Tacos", schedule: ["Unscheduled": []], dateRange: dateLabel.text!),
-            ScheduledMeal(name: "Grilled Salmon with Asparagus and more stuff", schedule: ["Mon": ["Dinner"], "Thu": ["Lunch"]], dateRange: dateLabel.text!),
-            ScheduledMeal(name: "Vegetable Stir Fry", schedule: ["Tue": ["Lunch", "Breakfast"], "Fri": ["Dinner"], "Sun": ["Lunch"]], dateRange: dateLabel.text!),
-            ScheduledMeal(name: "Beef Tacos", schedule: ["Sat": ["Lunch"]], dateRange: dateLabel.text!), 
-            ScheduledMeal(name: "Grilled Salmon with Asparagus and more stuff", schedule: ["Sun": ["Dinner"]], dateRange: dateLabel.text!),
-            ScheduledMeal(name: "Vegetable Stir Fry", schedule: ["Mon": ["Lunch"], "Sat": ["Dinner"]], dateRange: "03/02 - 03/08"),
-            ScheduledMeal(name: "Beef Tacos", schedule: ["Thu": ["Lunch"]], dateRange: "03/02 - 03/08"),
-            ScheduledMeal(name: "Grilled Salmon with Asparagus and more stuff", schedule: ["Fri": ["Dinner"]], dateRange: "03/02 - 03/08")
+            ScheduledMealStruct(name: "Spaghetti Bolognese", schedule: ["Mon": ["Lunch", "Dinner"], "Tue": ["Breakfast"], "Fri": ["Lunch"]], dateRange: dateLabel.text!),
+            ScheduledMealStruct(name: "Chicken Caesar Salad", schedule: ["Wed": ["Lunch"], "Sun": ["Dinner"]], dateRange: dateLabel.text!),
+            ScheduledMealStruct(name: "Crockpot Chicken", schedule: ["Unscheduled": []], dateRange: dateLabel.text!),
+            ScheduledMealStruct(name: "Vegetable Stir Fry", schedule: ["Thu": ["Breakfast"], "Sat": ["Lunch"]], dateRange: dateLabel.text!),
+            ScheduledMealStruct(name: "Beef Tacos", schedule: ["Unscheduled": []], dateRange: dateLabel.text!),
+            ScheduledMealStruct(name: "Grilled Salmon with Asparagus and more stuff", schedule: ["Mon": ["Dinner"], "Thu": ["Lunch"]], dateRange: dateLabel.text!),
+            ScheduledMealStruct(name: "Vegetable Stir Fry", schedule: ["Tue": ["Lunch", "Breakfast"], "Fri": ["Dinner"], "Sun": ["Lunch"]], dateRange: dateLabel.text!),
+            ScheduledMealStruct(name: "Beef Tacos", schedule: ["Sat": ["Lunch"]], dateRange: dateLabel.text!), 
+            ScheduledMealStruct(name: "Grilled Salmon with Asparagus and more stuff", schedule: ["Sun": ["Dinner"]], dateRange: dateLabel.text!),
+            ScheduledMealStruct(name: "Vegetable Stir Fry", schedule: ["Mon": ["Lunch"], "Sat": ["Dinner"]], dateRange: "03/02 - 03/08"),
+            ScheduledMealStruct(name: "Beef Tacos", schedule: ["Thu": ["Lunch"]], dateRange: "03/02 - 03/08"),
+            ScheduledMealStruct(name: "Grilled Salmon with Asparagus and more stuff", schedule: ["Fri": ["Dinner"]], dateRange: "03/02 - 03/08")
         ]
 
         // Separate out the ScheduledMeals for the current week
@@ -1066,13 +1059,12 @@ class PlannerViewController: UIViewController, UITableViewDataSource, UITableVie
         weeklyView.bringSubviewToFront(setMealPlanButton)
     }
 
-    // Create a day in the schedule view
-    private func createScheduleDay(day: String, weekDayNum: Int, isToday: Bool) -> UIView {
-        let scheduleDayContainer = UIView()
-        scheduleDayContainer.translatesAutoresizingMaskIntoConstraints = false
-        scheduleDayContainer.backgroundColor = .clear
+    private func createDayView(day: String, weekDayNum: Int, isToday: Bool) -> UIView {
+        // Container for the entire day view that will be returned
+        let dayViewContainer = UIView()
+        dayViewContainer.translatesAutoresizingMaskIntoConstraints = false
 
-        // Create the container for the date
+        // Create a container to hold the date of the day
         let dateContainer = UIView()
         dateContainer.translatesAutoresizingMaskIntoConstraints = false
         dateContainer.backgroundColor = isToday ? .appGreen : .appLightGrey
@@ -1082,11 +1074,10 @@ class PlannerViewController: UIViewController, UITableViewDataSource, UITableVie
         dateContainer.layer.shadowOpacity = 0.2
         dateContainer.layer.shadowOffset = CGSize(width: 2, height: 2)
         dateContainer.layer.shadowRadius = 4
-        scheduleDayContainer.addSubview(dateContainer)
+        dayViewContainer.addSubview(dateContainer)
         
-        // Calculate the correct date number for each day fo the week
-        var dateNum = Int(dateLabel.text!.split(separator: "/")[1].prefix(2)) ?? 0
-        dateNum = dateNum + weekDayNum 
+        // Take the date of the first day of the week, and add weekDayNum to it to get the date of the day of this view
+        let dateNum = Calendar.current.component(.day, from: Calendar.current.date(byAdding: .day, value: weekDayNum, to: setDate) ?? Date())
 
         // Create the label to display the date number
         let dateNumLabel = UILabel()
@@ -1104,158 +1095,173 @@ class PlannerViewController: UIViewController, UITableViewDataSource, UITableVie
         weekDaylabel.font = UIFont.systemFont(ofSize: 10)
         dateContainer.addSubview(weekDaylabel)
 
-        // Create the view to hold the meals
-        let mealContainer = UIView()
-        mealContainer.translatesAutoresizingMaskIntoConstraints = false
-        mealContainer.backgroundColor = .appLightGrey
-        mealContainer.layer.cornerRadius = 15
-        mealContainer.layer.masksToBounds = false
-        mealContainer.layer.shadowColor = UIColor.black.cgColor
-        mealContainer.layer.shadowOpacity = 0.2
-        mealContainer.layer.shadowOffset = CGSize(width: 2, height: 2)
-        mealContainer.layer.shadowRadius = 4
-        scheduleDayContainer.addSubview(mealContainer)
+        // Create the container to hold all of the meals
+        let mealsContainer = UIView()
+        mealsContainer.translatesAutoresizingMaskIntoConstraints = false
+        mealsContainer.backgroundColor = .appLightGrey
+        mealsContainer.layer.cornerRadius = 11
+        mealsContainer.layer.masksToBounds = false
+        mealsContainer.layer.shadowColor = UIColor.black.cgColor
+        mealsContainer.layer.shadowOpacity = 0.2
+        mealsContainer.layer.shadowOffset = CGSize(width: 2, height: 2)
+        mealsContainer.layer.shadowRadius = 4
+        dayViewContainer.addSubview(mealsContainer)
 
-        // Create a view to hold the meal labels
-        let mealLabelContainer = UIStackView()
-        mealLabelContainer.translatesAutoresizingMaskIntoConstraints = false
-        mealLabelContainer.axis = .horizontal
-        mealLabelContainer.distribution = .fillEqually 
-        mealLabelContainer.backgroundColor = .appGrey
-        mealLabelContainer.layer.cornerRadius = 8
-        mealLabelContainer.layoutMargins = UIEdgeInsets(top: 0, left: 6, bottom: 0, right: 6) 
-        mealLabelContainer.isLayoutMarginsRelativeArrangement = true 
-        mealContainer.addSubview(mealLabelContainer)
-        
-        // Create labels for breakfast, lunch, and dinner
-        let breakfastLabel = UILabel()
-        breakfastLabel.translatesAutoresizingMaskIntoConstraints = false
-        breakfastLabel.text = "Breakfast"
-        breakfastLabel.textColor = .darkGray
-        breakfastLabel.font = UIFont.systemFont(ofSize: 12)
-        
-        let lunchLabel = UILabel()
-        lunchLabel.translatesAutoresizingMaskIntoConstraints = false
-        lunchLabel.text = "Lunch"
-        lunchLabel.textColor = .darkGray
-        lunchLabel.font = UIFont.systemFont(ofSize: 12)
-        
-        let dinnerLabel = UILabel()
-        dinnerLabel.translatesAutoresizingMaskIntoConstraints = false
-        dinnerLabel.text = "Dinner"
-        dinnerLabel.textColor = .darkGray
-        dinnerLabel.font = UIFont.systemFont(ofSize: 12)
-        
-        // Add labels to the meal label container
-        mealLabelContainer.addArrangedSubview(breakfastLabel)
-        mealLabelContainer.addArrangedSubview(lunchLabel)
-        mealLabelContainer.addArrangedSubview(dinnerLabel)
+        // Create a container to hold the meal Labels
+        let mealLabelsContainer = UIStackView()
+        mealLabelsContainer.translatesAutoresizingMaskIntoConstraints = false
+        mealLabelsContainer.axis = .horizontal
+        mealLabelsContainer.distribution = .fillEqually 
+        mealLabelsContainer.backgroundColor = .appGrey
+        mealLabelsContainer.layer.cornerRadius = 8
+        mealLabelsContainer.layoutMargins = UIEdgeInsets(top: 0, left: 6, bottom: 0, right: 6) 
+        mealLabelsContainer.isLayoutMarginsRelativeArrangement = true 
+        mealsContainer.addSubview(mealLabelsContainer)
 
-        // Create a container for the views that will list the meals
-        let mealViewsContainer = UIStackView()
-        mealViewsContainer.translatesAutoresizingMaskIntoConstraints = false
-        mealViewsContainer.axis = .horizontal
-        mealViewsContainer.distribution = .fillEqually 
-        mealViewsContainer.backgroundColor = .clear
-        mealContainer.addSubview(mealViewsContainer)
+        // Function to create the mealLabels
+        func createMealLabel(mealName: String) -> UILabel {
+            let label = UILabel()
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.text = mealName
+            label.textColor = .darkGray
+            label.font = UIFont.systemFont(ofSize: 12)
+            return label
+        }
 
-        // Create containers to hold the scheduled meals of each meal
-        let breakfastMealsContainer = UIStackView()
-        breakfastMealsContainer.translatesAutoresizingMaskIntoConstraints = false
-        breakfastMealsContainer.axis = .vertical
-        breakfastMealsContainer.distribution = .fill 
-        breakfastMealsContainer.backgroundColor = .red
+        // Create the labels for each meal
+        let breakfastLabel = createMealLabel(mealName: "Breakfast")
+        let lunchLabel = createMealLabel(mealName: "Lunch")
+        let dinnerLabel = createMealLabel(mealName: "Dinner")
 
-        let lunchMealsContainer = UIStackView()
-        lunchMealsContainer.translatesAutoresizingMaskIntoConstraints = false
-        lunchMealsContainer.axis = .vertical
-        breakfastMealsContainer.distribution = .fill 
-        lunchMealsContainer.backgroundColor = .green
+        // Add labels to the container
+        mealLabelsContainer.addArrangedSubview(breakfastLabel)
+        mealLabelsContainer.addArrangedSubview(lunchLabel)
+        mealLabelsContainer.addArrangedSubview(dinnerLabel)
 
-        let dinnerMealsContainer = UIStackView()
-        dinnerMealsContainer.translatesAutoresizingMaskIntoConstraints = false
-        dinnerMealsContainer.axis = .vertical
-        breakfastMealsContainer.distribution = .fill 
-        dinnerMealsContainer.backgroundColor = .blue
+        // Function to create the meal containers
+        func createMealContainer () -> UIStackView{
+            let container = UIStackView()
+            container.translatesAutoresizingMaskIntoConstraints = false
+            container.axis = .vertical
+            container.distribution = .fill 
+            container.spacing = 2
+            return container
+        }
 
-        // Add containers to mealContainer
-        mealViewsContainer.addArrangedSubview(breakfastMealsContainer)
-        mealViewsContainer.addArrangedSubview(lunchMealsContainer)
-        mealViewsContainer.addArrangedSubview(dinnerMealsContainer)
+        // Create the tbdMealContainers fo each meal of the day
+        let breakfastContainer = createMealContainer()
+        let lunchContainer = createMealContainer()
+        let dinnerContainer = createMealContainer()
+
+        // Add the tbdMealContainers to the mealContainer
+        mealsContainer.addSubview(breakfastContainer)
+        mealsContainer.addSubview(lunchContainer)
+        mealsContainer.addSubview(dinnerContainer)
+
+        // Get the meals scheduled for the current day of this week
+        let scheduledMeals = mealPlanDataForCurrentWeek.filter { $0.schedule.keys.contains(day) }
+
+        // Function to create the view for displaying a meal
+        func createMealLabelView(mealName: String) -> UIView {
+            let mealLabelViewContainer = UIView()
+            mealLabelViewContainer.translatesAutoresizingMaskIntoConstraints = false
+
+            let leftBorder = UIView()
+            leftBorder.translatesAutoresizingMaskIntoConstraints = false
+            leftBorder.backgroundColor = .appYellow
+            mealLabelViewContainer.addSubview(leftBorder)
+
+            let mealLabel = UILabel()
+            mealLabel.translatesAutoresizingMaskIntoConstraints = false
+            mealLabel.text = mealName
+            mealLabel.numberOfLines = 0 
+            mealLabel.lineBreakMode = .byWordWrapping
+            mealLabel.font = UIFont.systemFont(ofSize: 11) 
+            mealLabelViewContainer.addSubview(mealLabel)
+
+            NSLayoutConstraint.activate([
+                leftBorder.leadingAnchor.constraint(equalTo: mealLabelViewContainer.leadingAnchor),
+                leftBorder.topAnchor.constraint(equalTo: mealLabelViewContainer.topAnchor),
+                leftBorder.bottomAnchor.constraint(equalTo: mealLabelViewContainer.bottomAnchor),
+                leftBorder.widthAnchor.constraint(equalToConstant: 4),
+                
+                mealLabel.leadingAnchor.constraint(equalTo: leftBorder.trailingAnchor, constant: 3),
+                mealLabel.topAnchor.constraint(equalTo: mealLabelViewContainer.topAnchor),
+                mealLabel.bottomAnchor.constraint(equalTo: mealLabelViewContainer.bottomAnchor),
+                mealLabel.trailingAnchor.constraint(equalTo: mealLabelViewContainer.trailingAnchor, constant: -4)
+            ])
+            return mealLabelViewContainer
+        }
+
+        // Loop through all of the meals scheduled for the current day
+        for meal in scheduledMeals {
+            // Check if the meal is scheduled for the current day and store the scheduled times in mealSchedule
+            if let mealSchedule = meal.schedule[day] {
+                // For each time that this meal is scheduled for, insert it to the proper view
+                for time in mealSchedule {
+                    let mealLabelContainer = createMealLabelView(mealName: meal.name)
+
+                    if time == "Breakfast" {
+                        breakfastContainer.addArrangedSubview(mealLabelContainer)
+                    } else if time == "Lunch" {
+                        lunchContainer.addArrangedSubview(mealLabelContainer)
+                    } else if time == "Dinner" {
+                        dinnerContainer.addArrangedSubview(mealLabelContainer)
+                    }
+                }
+            }
+        }
 
         NSLayoutConstraint.activate([
-            dateContainer.topAnchor.constraint(equalTo: scheduleDayContainer.topAnchor), 
-            dateContainer.leadingAnchor.constraint(equalTo: scheduleDayContainer.leadingAnchor), 
+            // NOTE: dayViewContainer constraints are set in the place that calls this function
+
+            // Constraints for the dateContainer and the labels inside of it
+            dateContainer.topAnchor.constraint(equalTo: dayViewContainer.topAnchor), 
+            dateContainer.leadingAnchor.constraint(equalTo: dayViewContainer.leadingAnchor), 
             dateContainer.heightAnchor.constraint(equalToConstant: 43),
             dateContainer.widthAnchor.constraint(equalToConstant: 43),
-
             dateNumLabel.topAnchor.constraint(equalTo: dateContainer.topAnchor, constant: 4), 
             dateNumLabel.centerXAnchor.constraint(equalTo: dateContainer.centerXAnchor),
-
             weekDaylabel.topAnchor.constraint(equalTo: dateNumLabel.bottomAnchor),
             weekDaylabel.centerXAnchor.constraint(equalTo: dateContainer.centerXAnchor),
 
-            mealContainer.topAnchor.constraint(equalTo: scheduleDayContainer.topAnchor),
-            mealContainer.leadingAnchor.constraint(equalTo: dateContainer.trailingAnchor, constant: 5),
-            mealContainer.trailingAnchor.constraint(equalTo: scheduleDayContainer.trailingAnchor),
-            mealContainer.bottomAnchor.constraint(equalTo: scheduleDayContainer.bottomAnchor),
-            mealContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 80),
+            // Contraints for the mealsContainer
+            mealsContainer.topAnchor.constraint(equalTo: dayViewContainer.topAnchor),
+            mealsContainer.leadingAnchor.constraint(equalTo: dateContainer.trailingAnchor, constant: 5),
+            mealsContainer.trailingAnchor.constraint(equalTo: dayViewContainer.trailingAnchor),
+            mealsContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 80), // Same min height as dayViewContainer
 
-            mealLabelContainer.topAnchor.constraint(equalTo: mealContainer.topAnchor, constant: 5),
-            mealLabelContainer.leadingAnchor.constraint(equalTo: mealContainer.leadingAnchor, constant: 5),
-            mealLabelContainer.trailingAnchor.constraint(equalTo: mealContainer.trailingAnchor, constant: -5),
-            mealLabelContainer.heightAnchor.constraint(equalToConstant: 20),
+            // Constraints for the mealLabelsContainer and the vertically centering the labels inside
+            mealLabelsContainer.topAnchor.constraint(equalTo: mealsContainer.topAnchor, constant: 5),
+            mealLabelsContainer.leadingAnchor.constraint(equalTo: mealsContainer.leadingAnchor, constant: 5),
+            mealLabelsContainer.trailingAnchor.constraint(equalTo: mealsContainer.trailingAnchor, constant: -5),
+            mealLabelsContainer.heightAnchor.constraint(equalToConstant: 20),
+            breakfastLabel.centerYAnchor.constraint(equalTo: mealLabelsContainer.centerYAnchor),
+            lunchLabel.centerYAnchor.constraint(equalTo: mealLabelsContainer.centerYAnchor),
+            dinnerLabel.centerYAnchor.constraint(equalTo: mealLabelsContainer.centerYAnchor),
 
-            // Center the meal labels vertically in its container
-            breakfastLabel.centerYAnchor.constraint(equalTo: mealLabelContainer.centerYAnchor),
-            lunchLabel.centerYAnchor.constraint(equalTo: mealLabelContainer.centerYAnchor),
-            dinnerLabel.centerYAnchor.constraint(equalTo: mealLabelContainer.centerYAnchor),
+            // Constraints for each of the meal containers
+            breakfastContainer.topAnchor.constraint(equalTo: mealLabelsContainer.bottomAnchor, constant: 5),
+            breakfastContainer.leadingAnchor.constraint(equalTo: breakfastLabel.leadingAnchor),
+            breakfastContainer.trailingAnchor.constraint(equalTo: breakfastLabel.trailingAnchor, constant: -2),
+            lunchContainer.topAnchor.constraint(equalTo: mealLabelsContainer.bottomAnchor, constant: 5),
+            lunchContainer.leadingAnchor.constraint(equalTo: lunchLabel.leadingAnchor),
+            lunchContainer.trailingAnchor.constraint(equalTo: lunchLabel.trailingAnchor, constant: -2),
+            dinnerContainer.topAnchor.constraint(equalTo: mealLabelsContainer.bottomAnchor, constant: 5),
+            dinnerContainer.leadingAnchor.constraint(equalTo: dinnerLabel.leadingAnchor),
+            dinnerContainer.trailingAnchor.constraint(equalTo: dinnerLabel.trailingAnchor),
 
-            mealViewsContainer.topAnchor.constraint(equalTo: mealLabelContainer.bottomAnchor, constant: 4),
-            mealViewsContainer.leadingAnchor.constraint(equalTo: mealLabelContainer.leadingAnchor),
-            mealViewsContainer.trailingAnchor.constraint(equalTo: mealLabelContainer.trailingAnchor)
+            // These constraints make mealsContainer adjust to fit its tallest subview
+            mealsContainer.bottomAnchor.constraint(greaterThanOrEqualTo: breakfastContainer.bottomAnchor, constant: 8),
+            mealsContainer.bottomAnchor.constraint(greaterThanOrEqualTo: lunchContainer.bottomAnchor, constant: 8),
+            mealsContainer.bottomAnchor.constraint(greaterThanOrEqualTo: dinnerContainer.bottomAnchor, constant: 8),
             
+            // Make dayViewContainer's height match mealsContainer's height
+            dayViewContainer.bottomAnchor.constraint(equalTo: mealsContainer.bottomAnchor)
         ])
-
-        // Get the meals scheduled for the current day of this week
-        let scheduledMeals = mealPlanDataForCurrentWeek
-            .filter { $0.schedule.keys.contains(day) }
-
         
-        for meal in scheduledMeals {
-            if let mealTimes = meal.schedule[day] {
-                let leftBorder = UIView()
-                leftBorder.translatesAutoresizingMaskIntoConstraints = false
-                leftBorder.backgroundColor = .appYellow
-                breakfastMealsContainer.addSubview(leftBorder)
-
-                let mealLabel = UILabel()
-                mealLabel.translatesAutoresizingMaskIntoConstraints = false
-                mealLabel.text = meal.name
-                mealLabel.numberOfLines = 0 
-                mealLabel.lineBreakMode = .byWordWrapping
-                mealLabel.font = UIFont.systemFont(ofSize: 11) 
-                breakfastMealsContainer.addSubview(mealLabel)
-
-                NSLayoutConstraint.activate([
-                    breakfastMealsContainer.heightAnchor.constraint(equalToConstant: 120),
-                    breakfastMealsContainer.bottomAnchor.constraint(equalTo: mealContainer.bottomAnchor),
-
-                    leftBorder.leadingAnchor.constraint(equalTo: breakfastMealsContainer.leadingAnchor),
-                    leftBorder.topAnchor.constraint(equalTo: breakfastMealsContainer.topAnchor),
-                    leftBorder.widthAnchor.constraint(equalToConstant: 4),
-                    leftBorder.heightAnchor.constraint(equalTo: mealLabel.heightAnchor),
-
-                    mealLabel.leadingAnchor.constraint(equalTo: leftBorder.trailingAnchor, constant: 3),
-                    mealLabel.topAnchor.constraint(equalTo: breakfastMealsContainer.topAnchor),
-                    mealLabel.trailingAnchor.constraint(equalTo: breakfastMealsContainer.trailingAnchor, constant: -4)
-                ])
-            }
-        }   
-        
-        return scheduleDayContainer
+        return dayViewContainer
     }
-
     
     // #endregion *** END Other Functions ***
 } 

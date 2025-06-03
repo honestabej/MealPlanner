@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="24E247" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="FamilySettings" representedClassName="FamilySettings" syncable="YES">
+        <attribute name="startDay" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="settings" inverseEntity="User"/>
+    </entity>
+    <entity name="Grocery" representedClassName="Grocery" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="groceries" inverseEntity="User"/>
+    </entity>
+    <entity name="MealPlan" representedClassName="MealPlan" syncable="YES">
+        <attribute name="name" attributeType="String"/>
+        <relationship name="scheduledMeal" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ScheduledMeal" inverseName="mealPlan" inverseEntity="ScheduledMeal"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="mealPlans" inverseEntity="User"/>
+    </entity>
+    <entity name="Recipe" representedClassName="Recipe" syncable="YES">
+        <attribute name="alertsData" optional="YES" attributeType="Transformable"/>
+        <attribute name="image" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="ingredients" optional="YES" attributeType="Transformable" valueTransformerName=""/>
+        <attribute name="instructions" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="tags" optional="YES" attributeType="Transformable"/>
+        <relationship name="scheduledMeal" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ScheduledMeal" inverseName="recipe" inverseEntity="ScheduledMeal"/>
+        <relationship name="user" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="recipes" inverseEntity="User"/>
+    </entity>
+    <entity name="ScheduledMeal" representedClassName="ScheduledMeal" syncable="YES">
+        <attribute name="daysAndMeals" optional="YES" attributeType="Transformable"/>
+        <attribute name="weekOf" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="mealPlan" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MealPlan" inverseName="scheduledMeal" inverseEntity="MealPlan"/>
+        <relationship name="recipe" maxCount="1" deletionRule="Nullify" destinationEntity="Recipe" inverseName="scheduledMeal" inverseEntity="Recipe"/>
+        <relationship name="user" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="scheduledMeals" inverseEntity="User"/>
+    </entity>
+    <entity name="User" representedClassName="User" syncable="YES">
+        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="password" optional="YES" attributeType="String"/>
+        <attribute name="uuid" attributeType="String"/>
+        <relationship name="groceries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Grocery" inverseName="user" inverseEntity="Grocery"/>
+        <relationship name="mealPlans" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MealPlan" inverseName="user" inverseEntity="MealPlan"/>
+        <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Recipe" inverseName="user" inverseEntity="Recipe"/>
+        <relationship name="scheduledMeals" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ScheduledMeal" inverseName="user" inverseEntity="ScheduledMeal"/>
+        <relationship name="settings" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FamilySettings" inverseName="user" inverseEntity="FamilySettings"/>
+    </entity>
+</model>

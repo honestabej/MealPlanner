@@ -13,3 +13,25 @@ enum WeekStartDay: Int {
 
 // Global variable to store the starting day of the week
 var startingWeekDay: WeekStartDay = .sunday // Default to Sunday 
+
+struct ScheduledMealStruct {
+    let name: String                            
+    let schedule: [String: [String]]                        
+    var isChecked: Bool = false                 
+    var dateRange: String
+}
+
+struct RecipeData {
+    let name: String
+    let image: String
+    let tags: [String]
+    let ingredients: [String]
+    let instructions: String
+}
+
+class RecipeManager {
+    static let shared = RecipeManager()
+    private init() {} // Prevents creating multiple instances
+    
+    var recipes: [RecipeData] = []
+}
