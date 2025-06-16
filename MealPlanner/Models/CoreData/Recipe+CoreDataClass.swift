@@ -1,50 +1,25 @@
 import CoreData
 import Foundation
-import UIKit
-
-public struct RecipeAlertData: Codable {
-    let title: String
-    let message: String
-    let hoursBeforeStart: Double
-    let isEnabled: Bool
-    let notificationIdentifier: String?
-}
 
 @objc(Recipe)
 public class Recipe: NSManagedObject {
+    // Relatinoship accessors
+    var templateMealsArray: [TemplateMeal] {
+        let set = templateMeals as? Set<TemplateMeal> ?? []
+        return set.sorted { ($0.day) < ($1.day) }
+    }
     
-    // Create a new Recipe
-    static func create(name: String, image: Data? = nil, ingredients: [String] = [], instructions: String = "", tags: [String] = [], alerts: [RecipeAlertData] = [], user: User, in context: NSManagedObjectContext) -> Recipe {
-        let recipe = Recipe(context: context)
-        recipe.name = name
-        recipe.image = image
-        recipe.ingredients = ingredients
-        recipe.instructions = instructions
-        recipe.tags = tags
-        recipe.alerts = alerts
-        recipe.user = user
-        return recipe
+    var scheduledMealsArray: [ScheduledMeal] {
+        let set = scheduledMeals as? Set<ScheduledMeal> ?? []
+        return set.sorted { ($0.date) < ($1.date) }
     }
-
-    // Image handling
-    var recipeImage: UIImage? {
-        get {
-            guard let imageData = image else { return nil }
-            return UIImage(data: imageData)
-        }
-        set {
-            if let newImage = newValue {
-                // Compress image to reasonable size (max 1MB)
-                if let compressedData = newImage.jpegData(compressionQuality: 0.7) {
-                    image = compressedData
-                }
-            } else {
-                image = nil
-            }
-        }
+    
+    var groceriesArray: [Grocery] {
+        let set = groceries as? Set<Grocery> ?? []
+        return set.sorted { ($0.name) < ($1.name) }
     }
-
-    // Validation
+    
+    // Data validation
     override public func validateForInsert() throws {
         try super.validateForInsert()
         try validateRecipe()
@@ -60,32 +35,6 @@ public class Recipe: NSManagedObject {
             throw RecipeValidationError.emptyName
         }
     }
-
-    // Lifecycle
-    override public func willSave() {
-        super.willSave()
-    }
-
-    // Helper functions
-    func addTags(_ tagsToAdd: [String]) {
-        for tag in tagsToAdd {
-            if !tags.contains(tag) {
-                tags.append(tag)
-            }
-        }
-    }
-
-    func addIngredients(_ ingredientsToAdd: [String]) {
-        for ingredient in ingredientsToAdd {
-            if !ingredients.contains(ingredient) {
-                ingredients.append(ingredient)
-            }
-        }
-    }
-
-    func addAlert(_ alertToAdd: RecipeAlertData) {
-        alerts.append(alertToAdd)
-    }
 }
 
 enum RecipeValidationError: LocalizedError {
@@ -99,27 +48,37 @@ enum RecipeValidationError: LocalizedError {
     }
 }
 
+// Core Data Properties
 extension Recipe {
+    // Default fetch function
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Recipe> {
         return NSFetchRequest<Recipe>(entityName: "Recipe")
     }
     
+    // Declare attributes
+    @NSManaged public var rid: UUID
     @NSManaged public var name: String
-    @NSManaged public var image: Data?
     @NSManaged public var ingredients: [String]
-    @NSManaged public var instructions: String
-    @NSManaged private var alertsData: Data?
+    @NSManaged public var instructions: String?
+    @NSManaged public var image: Data?
     @NSManaged public var tags: [String]
-    @NSManaged public var user: User
-    @NSManaged public var scheduledMeals: NSSet?
+    @NSManaged public var alertsData: Data?
     
-    public var alerts: [RecipeAlertData] { 
+    // Declare relationships
+    @NSManaged public var family: Family
+    @NSManaged public var templateMeals: NSSet?
+    @NSManaged public var scheduledMeals: NSSet?
+    @NSManaged public var groceries: NSSet?
+    
+    // Handle RecipeAlertsData struct converison
+    public var alerts: [RecipeAlertData] {
         get {
             guard let data = alertsData else { return [] }
-            return (try? JSONDecoder().decode([RecipeAlertData].self, from: data)) ?? []
+            return (try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, RecipeAlertData.self], from: data)) as? [RecipeAlertData] ?? []
         }
         set {
-            alertsData = try? JSONEncoder().encode(newValue)
+            alertsData = try? NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: true)
         }
     }
+
 }

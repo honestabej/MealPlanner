@@ -2,7 +2,7 @@ import UIKit
 
 class RecipesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, AddRecipeDelegate {
     // Initialize class variables
-    var myRecipes: [RecipeData] = []
+    var myRecipes: [Recipe] = []
     private let addRecipeButton: UIButton = {
         let button = UIButton()
         button.setTitle("Add Recipe", for: .normal)
@@ -25,7 +25,7 @@ class RecipesViewController: UIViewController, UITableViewDataSource, UITableVie
         super.viewDidLoad()
 
         // Populate the recipes array for the table
-        myRecipes = RecipeManager.shared.recipes
+        myRecipes = globalFamily?.recipesArray ?? []
 
         // Set up the view
         view.backgroundColor = .appGreen
@@ -107,7 +107,7 @@ class RecipesViewController: UIViewController, UITableViewDataSource, UITableVie
 
     // Add the new recipe from the addRecipe view to the RecipeManager and then reload the table with new data
     func recipeAdded() {
-        myRecipes = RecipeManager.shared.recipes
+        myRecipes = globalFamily?.recipesArray ?? []
         recipesTableView.reloadData()
     }
 } 

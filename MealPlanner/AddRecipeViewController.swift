@@ -338,24 +338,25 @@ class AddRecipeViewController: UIViewController, UITextViewDelegate {
     // #endregion
 
     func createRecipe() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        var tempIngredients: [String] = ["Ing1", "Ing2", "Ing3"]
-
-        // Get the current user from Core Data
-        let userFetch: NSFetchRequest<User> = User.fetchRequest()
-        userFetch.fetchLimit = 1
-        guard let user = try? context.fetch(userFetch).first else {
-            print("No user found in Core Data")
-            return
-        }
-        
-        do {
-            let recipe = Recipe.create(name: "Recipe1", ingredients: tempIngredients, instructions: "instructions here", user: user, in: context)
-            try context.save()
-            print("Recipe saved: \(recipe.name) to user: \(user.name)")
-        } catch {
-            print("Error saving user: \(error.localizedDescription)")
-        }
+//        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+//        var tempIngredients: [String] = ["Ing1", "Ing2", "Ing3"]
+//
+//        // Get the current user from Core Data
+//        let userFetch: NSFetchRequest<User> = User.fetchRequest()
+//        userFetch.fetchLimit = 1
+//        guard let user = try? context.fetch(userFetch).first else {
+//            print("No user found in Core Data")
+//            return
+//        }
+//        
+//        do {
+////            let recipe = Recipe.create(name: "Recipe1", ingredients: tempIngredients, instructions: "instructions here", in: context, family: <#Family#>)
+////            try context.save()
+////            print("Recipe saved: \(recipe.name) to user: \(user.name)")
+//            print("Temp")
+//        } catch {
+//            print("Error saving user: \(error.localizedDescription)")
+//        }
     }
 
     // Cancel add recipe button action
@@ -376,8 +377,8 @@ class AddRecipeViewController: UIViewController, UITextViewDelegate {
         createRecipe()
 
         // Create a new Recipe struct and add it to the list of all recipes
-        let newRecipe = RecipeData(name: recipeTitleTextField.text ?? "", image: "", tags: [], ingredients: ingredients, instructions: instructionsTextView.text)
-        RecipeManager.shared.recipes.append(newRecipe)
+//        let newRecipe = RecipeData(name: recipeTitleTextField.text ?? "", image: "", tags: [], ingredients: ingredients, instructions: instructionsTextView.text)
+//        RecipeManager.shared.recipes.append(newRecipe)
         delegate?.recipeAdded()
         dismiss(animated: true, completion: nil)
     }
@@ -553,7 +554,7 @@ class AddRecipeViewController: UIViewController, UITextViewDelegate {
             }, for: .touchUpInside)
 
             // Action for button to cancel ingredient edit
-            cancelEditButton.addAction(UIAction { [weak self] _ in 
+            cancelEditButton.addAction(UIAction {_ in 
                 // Remove the editing components
                 ingredientTextField.removeFromSuperview()
                 confirmEditButton.removeFromSuperview()

@@ -3,25 +3,18 @@ import Foundation
 
 @objc(User)
 public class User: NSManagedObject {
-
-    // Create a new User
-    static func create(name: String, email: String, password: String, in context: NSManagedObjectContext) -> User {
-        let user = User(context: context)
-        user.name = name
-        user.email = email
-        user.password = password
-        user.uuid = UUID().uuidString
-        return user
+    // Relationship accessors
+    var scheduledMealsArray: [ScheduledMeal] {
+        let set = scheduledMeals as? Set<ScheduledMeal> ?? []
+        return set.sorted { ($0.date) < ($1.date) }
     }
-
-    // Update a User
-    static func update(user: User, name: String? = nil, email: String? = nil, password: String? = nil, in context: NSManagedObjectContext) {
-        user.name = name ?? user.name
-        user.email = email ?? user.email
-        user.password = password ?? user.password
+    
+    var templateMealsArray: [TemplateMeal] {
+        let set = templateMeals as? Set<TemplateMeal> ?? []
+        return set.sorted { ($0.day) < ($1.day) }
     }
-
-    // Validation functions for creating and inserting
+    
+    // Data validation
     override public func validateForInsert() throws {
         try super.validateForInsert()
         try validateUser()
@@ -34,23 +27,24 @@ public class User: NSManagedObject {
     
     private func validateUser() throws {
         if name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            throw ValidationError.emptyName
+            throw UserValidationError.emptyName
         }
         
-        if !email.contains("@") || !email.contains(".") {
-            throw ValidationError.invalidEmail
+        if let email = email {
+            if !email.contains("@") || !email.contains(".") {
+                throw UserValidationError.invalidEmail
+            }
         }
         
-        if password.count < 6 {
-            throw ValidationError.passwordTooShort
+        if let password = password {
+            if password.count < 8 {
+                throw UserValidationError.passwordTooShort
+            }
         }
     }
-
-    // Helper methods
-    // TODO: Add helper methods for User
 }
 
-enum ValidationError: LocalizedError {
+enum UserValidationError: LocalizedError {
     case emptyName
     case invalidEmail
     case passwordTooShort
@@ -62,22 +56,29 @@ enum ValidationError: LocalizedError {
         case .invalidEmail:
             return "Please enter a valid email address"
         case .passwordTooShort:
-            return "Password must be at least 6 characters long"
+            return "Password must be at least 8 characters long"
         }
     }
 }
 
 // Core Data Properties
 extension User {
+    // Default fetch function
     @nonobjc public class func fetchRequest() -> NSFetchRequest<User> {
         return NSFetchRequest<User>(entityName: "User")
     }
     
+    // Declare attributes
+    @NSManaged public var uid: UUID
     @NSManaged public var name: String
-    @NSManaged public var email: String
-    @NSManaged public var password: String
-    @NSManaged public var uuid: String
-    @NSManaged public var recipes: NSSet?
-    @NSManaged public var mealPlans: NSSet?
+    @NSManaged public var email: String?
+    @NSManaged public var password: String?
+    @NSManaged public var type: String
+    @NSManaged public var color: String
+    @NSManaged public var admin: Bool
+    
+    // Declare relationships
+    @NSManaged public var family: Family
     @NSManaged public var scheduledMeals: NSSet?
+    @NSManaged public var templateMeals: NSSet?
 }

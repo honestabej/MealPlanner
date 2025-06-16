@@ -1,9 +1,9 @@
 import CoreData
 import Foundation
 
-@objc(ScheduledMeal)
-public class ScheduledMeal: NSManagedObject {
-    // Relationship accessors
+@objc(TemplateMeal)
+public class TemplateMeal: NSManagedObject {
+    // Recipe accessors
     var usersArray: [User] {
         let set = users as? Set<User> ?? []
         return set.sorted { ($0.name) < ($1.name) }
@@ -12,22 +12,22 @@ public class ScheduledMeal: NSManagedObject {
     // Data validation
     override public func validateForInsert() throws {
         try super.validateForInsert()
-        try validateScheduledMeal()
+        try validateTemplateMeal()
     }
     
     override public func validateForUpdate() throws {
         try super.validateForUpdate()
-        try validateScheduledMeal()
+        try validateTemplateMeal()
     }
     
-    private func validateScheduledMeal() throws {
+    private func validateTemplateMeal() throws {
         if meal != "Breakfast" && meal != "Lunch" && meal != "Dinner" && meal != "Snack" && meal != "Unscheduled" {
-            throw ScheduledMealValidationError.invalidMeal
+            throw TemplateMealValidationError.invalidMeal
         }
     }
 }
 
-enum ScheduledMealValidationError: LocalizedError {
+enum TemplateMealValidationError: LocalizedError {
     case invalidMeal
     
     var errorDescription: String? {
@@ -39,20 +39,19 @@ enum ScheduledMealValidationError: LocalizedError {
 }
 
 // Core Data Properties
-extension ScheduledMeal {
+extension TemplateMeal {
     // Default fetch function
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<ScheduledMeal> {
-        return NSFetchRequest<ScheduledMeal>(entityName: "ScheduledMeal")
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<TemplateMeal> {
+        return NSFetchRequest<TemplateMeal>(entityName: "TemplateMeal")
     }
     
     // Declare attributes
-    @NSManaged public var sid: UUID
-    @NSManaged public var date: Date
+    @NSManaged public var tid: UUID
+    @NSManaged public var day: String
     @NSManaged public var meal: String
-    @NSManaged public var isChecked: Bool
     
     // Declare relationships
-    @NSManaged public var family: Family
     @NSManaged public var users: NSSet?
+    @NSManaged public var mealPlan: MealPlan
     @NSManaged public var recipe: Recipe
 }

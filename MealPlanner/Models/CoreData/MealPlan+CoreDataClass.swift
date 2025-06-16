@@ -3,14 +3,13 @@ import Foundation
 
 @objc(MealPlan)
 public class MealPlan: NSManagedObject {
-    static func create(name: String, user: User, in context: NSManagedObjectContext) -> MealPlan {
-        let mealPlan = MealPlan(context: context)
-        mealPlan.name = name
-        mealPlan.user = user
-        return mealPlan
+    // Relationship accessors
+    var templateMealsArray: [TemplateMeal] {
+        let set = templateMeals as? Set<TemplateMeal> ?? []
+        return set.sorted { ($0.day) < ($1.day) }
     }
-
-    // Validation
+    
+    // Data validation
     override public func validateForInsert() throws {
         try super.validateForInsert()
         try validateMealPlan()
@@ -34,18 +33,23 @@ enum MealPlanValidationError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .emptyName:
-            return "Meal plan name cannot be empty"
+            return "Name cannot be empty"
         }
     }
 }
 
 // Core Data Properties
 extension MealPlan {
+    // Default fetch function
     @nonobjc public class func fetchRequest() -> NSFetchRequest<MealPlan> {
         return NSFetchRequest<MealPlan>(entityName: "MealPlan")
     }
     
+    // Declare attributes
+    @NSManaged public var mid: UUID
     @NSManaged public var name: String
-    @NSManaged public var user: User
-    @NSManaged public var scheduledMeals: NSSet?
-}   
+    
+    // Declare relationships
+    @NSManaged public var family: Family
+    @NSManaged public var templateMeals: NSSet?
+}

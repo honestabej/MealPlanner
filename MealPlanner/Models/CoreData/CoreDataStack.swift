@@ -4,7 +4,7 @@ import Foundation
 class CoreDataStack {
     static let shared = CoreDataStack()
     
-    private init() {}
+    init() {}
     
     // Persistent Container
     lazy var persistentContainer: NSPersistentContainer = {
@@ -77,4 +77,57 @@ class CoreDataStack {
             print("Batch delete error: \(error)")
         }
     }
+    
+    // Delete all CoreData entites, but keep the persistent store structure
+    func deleteAllEntities(in context: NSManagedObjectContext) {
+        let entities = persistentContainer.managedObjectModel.entities
+
+        for entity in entities {
+            guard let name = entity.name else { continue }
+
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: name)
+            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
+            do {
+                try context.execute(deleteRequest)
+            } catch {
+                print("Failed to delete entity \(name): \(error)")
+            }
+        }
+
+        try? context.save()
+    }
+    
+    // Completely reset the CoreData persistent Store structure
+    func deletePersistentStore() -> String {
+        guard let storeURL = persistentContainer.persistentStoreDescriptions.first?.url else {
+            print("❌ Store URL not found.")
+            return "❌ Store URL not found."
+        }
+
+        let coordinator = persistentContainer.persistentStoreCoordinator
+
+        do {
+            var returnString = ""
+            try coordinator.destroyPersistentStore(at: storeURL, ofType: NSSQLiteStoreType, options: nil)
+            print("🧨 Old Persistent store deleted.")
+            returnString.append("🧨 Old Persistent store deleted.")
+
+            // Recreate the store
+            persistentContainer = NSPersistentContainer(name: "MealPlanner")
+            persistentContainer.loadPersistentStores { _, error in
+                if let error = error {
+                    fatalError("Failed to reload store: \(error)")
+                }
+                print("✅ New persistent store created.")
+                returnString.append("\n✅ New persistent store created.")
+            }
+            
+            return returnString
+        } catch {
+            print("❌ Failed to delete persistent store: \(error)")
+            return "❌ Failed to delete persistent store: \(error)"
+        }
+    }
+
 }

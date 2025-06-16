@@ -33,7 +33,7 @@
 		26ABDDFE2D56682C00016FEB /* Exceptions for "MealPlanner" folder in "MealPlanner" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Resources/Info.plist,
 			);
 			target = 26ABDDD22D56682B00016FEB /* MealPlanner */;
 		};
@@ -291,7 +291,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 396U5G6ZP7;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MealPlanner/Info.plist;
+				INFOPLIST_FILE = MealPlanner/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -319,7 +319,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 396U5G6ZP7;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MealPlanner/Info.plist;
+				INFOPLIST_FILE = MealPlanner/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
